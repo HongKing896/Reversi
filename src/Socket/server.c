@@ -22,11 +22,11 @@ enum Space{
 	White
 };
 void print_logo() {
-    mvprintw(1 + 0, 35, " ||===   || ||	    || ||===  ||===    ====	   || ");
-    mvprintw(1 + 1, 35, " ||  ==  || ||     || ||	  ||  ==  ==   ==  || ");
-    mvprintw(1 + 2, 35, " ||===   ||  ||   ||  ||===  ||===	   ===	   || ");
-    mvprintw(1 + 3, 35, " || ||	  ||   || ||   ||	  || ||   ==   ==  || ");
-	mvprintw(1 + 4, 35, " ||  ||  ||	 ||	   ||===  ||  ||    ====   || ");
+    mvprintw(1 + 0, 35, " ||===   || ||     || ||===  ||===    ====    || ");
+    mvprintw(1 + 1, 35, " ||  ==  || ||     || ||     ||  ==  ==   ==  || ");
+    mvprintw(1 + 2, 35, " ||===   ||  ||   ||  ||===  ||===     ===    || ");
+    mvprintw(1 + 3, 35, " || ||   ||   || ||   ||     || ||   ==   ==  || ");
+	mvprintw(1 + 4, 35, " ||  ||  ||    ||     ||===  ||  ||    ====   || ");
 }
 
 void print_turn() {
@@ -252,7 +252,6 @@ bool isGameOver(int board[BOARD_SIZE][BOARD_SIZE]) {
 
 void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
 	print_logo();
-
 	for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
             int x = j * CELL_WIDTH;
@@ -262,15 +261,7 @@ void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
             mvprintw(y + 1, x, "|   |");
             mvprintw(y + 2, x, "+---+");
 			
-			if(board[i][j] == 1){
-				int x = j * CELL_WIDTH;
-				int y = i * 2;
-
-				mvprintw(y, x, "+---+");
-				mvprintw(y + 1, x, "| X |");
-				mvprintw(y + 2, x, "+---+");
-			}
-			if(board[i][j] == 2){
+			if(board[i][j] == Black){
 				int x = j * CELL_WIDTH;
 				int y = i * 2;
 
@@ -278,12 +269,20 @@ void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
 				mvprintw(y + 1, x, "| O |");
 				mvprintw(y + 2, x, "+---+");
 			}
-			if(isValidMove(i,j,board)){
+			if(board[i][j] == White){
 				int x = j * CELL_WIDTH;
 				int y = i * 2;
 
 				mvprintw(y, x, "+---+");
 				mvprintw(y + 1, x, "| @ |");
+				mvprintw(y + 2, x, "+---+");
+			}
+			if(isValidMove(i,j,board)){
+				int x = j * CELL_WIDTH;
+				int y = i * 2;
+
+				mvprintw(y, x, "+---+");
+				mvprintw(y + 1, x, "| X |");
 				mvprintw(y + 2, x, "+---+");
 			}
         }
@@ -295,7 +294,7 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 	initscr();
     curs_set(1);
     keypad(stdscr, TRUE);
-
+	int count = 0;
 	do {
 		int s ;
 		
@@ -317,13 +316,15 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 
 		print_board(board);
 
-	} while (!isGameOver(board)) ;
-
+	//} while (!isGameOver(board)) ;
+	count ++; 
+	} while (count < 4) ;
 	int blackCount = 0;
     int whiteCount = 0;
     
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
+			mvprintw(20+i,35+j,"%d",board[i][j]);
             if (board[i][j] == Black) {
                 blackCount++;
             } else if (board[i][j] == White) {
@@ -333,10 +334,13 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
     }
 	
 	clear_print();
-	if(blackCount > whiteCount) print_lose();
-	else if (blackCount > whiteCount) print_win();
+	if(blackCount > whiteCount) print_win();
+	else if (blackCount < whiteCount) print_lose();
 	else print_dr();
-
+	
+	int check; 
+	while((check= getchar()) != '\n') ;
+	
 	endwin();
 }
 

@@ -15,18 +15,17 @@
 #define SERVER 1
 #define CLIENT 2
 
-
 enum Space{
 	Empty,
 	Black,
 	White
 };
 void print_logo() {
-    mvprintw(1 + 0, 35, " ||===   || ||	    || ||===  ||===    ====	   || ");
-    mvprintw(1 + 1, 35, " ||  ==  || ||     || ||	  ||  ==  ==   ==  || ");
-    mvprintw(1 + 2, 35, " ||===   ||  ||   ||  ||===  ||===	   ===	   || ");
-    mvprintw(1 + 3, 35, " || ||	  ||   || ||   ||	  || ||   ==   ==  || ");
-	mvprintw(1 + 4, 35, " ||  ||  ||	 ||	   ||===  ||  ||    ====   || ");
+    mvprintw(1 + 0, 35, " ||===   || ||     || ||===  ||===    ====    || ");
+    mvprintw(1 + 1, 35, " ||  ==  || ||     || ||     ||  ==  ==   ==  || ");
+    mvprintw(1 + 2, 35, " ||===   ||  ||   ||  ||===  ||===     ===    || ");
+    mvprintw(1 + 3, 35, " || ||   ||   || ||   ||     || ||   ==   ==  || ");
+	mvprintw(1 + 4, 35, " ||  ||  ||    ||     ||===  ||  ||    ====   || ");
 }
 
 void print_turn() {
@@ -39,7 +38,7 @@ void print_turn() {
 void clear_print() {
     mvprintw(10 + 0, 35, "                                                           ");
     mvprintw(10 + 1, 35, "                                                           ");
-    mvprintw(10 + 2, 35, "                                           	            ");
+    mvprintw(10 + 2, 35, "                                                           ");
     mvprintw(10 + 3, 35, "                                                           ");
 }
 
@@ -208,13 +207,13 @@ void print_move(int board[BOARD_SIZE][BOARD_SIZE]){
 				if (board[row][col] == 0) {
 					// 선택한 위치에 동그라미 그리기
 					if (turn == SERVER) {
-						board[row][col] = 1;  // 흑돌
+						board[row][col] = Black;  // 흑돌
 						attron(COLOR_PAIR(1));  // 컬러 쌍 1 설정 (흑돌)
 						mvaddch(row * 2 + 1, col * CELL_WIDTH + 2, 'X');
 						attroff(COLOR_PAIR(1));  // 컬러 쌍 1 해제
 						makeMove(row,col,board);
 					} else if (turn == CLIENT) {
-						board[row][col] = 2;  // 흰돌
+						board[row][col] = White;  // 흰돌
 						attron(COLOR_PAIR(2));  // 컬러 쌍 2 설정 (흰돌)
 						mvaddch(row * 2 + 1, col * CELL_WIDTH + 2, 'O');
 						attroff(COLOR_PAIR(2));  // 컬러 쌍 2 해제
@@ -265,15 +264,7 @@ void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
             mvprintw(y + 1, x, "|   |");
             mvprintw(y + 2, x, "+---+");
 			
-			if(board[i][j] == 1){
-				int x = j * CELL_WIDTH;
-				int y = i * 2;
-
-				mvprintw(y, x, "+---+");
-				mvprintw(y + 1, x, "| X |");
-				mvprintw(y + 2, x, "+---+");
-			}
-			if(board[i][j] == 2){
+			if(board[i][j] == Black){
 				int x = j * CELL_WIDTH;
 				int y = i * 2;
 
@@ -281,12 +272,20 @@ void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
 				mvprintw(y + 1, x, "| O |");
 				mvprintw(y + 2, x, "+---+");
 			}
-			if(isValidMove(i,j,board)){
+			if(board[i][j] == White){
 				int x = j * CELL_WIDTH;
 				int y = i * 2;
 
 				mvprintw(y, x, "+---+");
 				mvprintw(y + 1, x, "| @ |");
+				mvprintw(y + 2, x, "+---+");
+			}
+			if(isValidMove(i,j,board)){
+				int x = j * CELL_WIDTH;
+				int y = i * 2;
+
+				mvprintw(y, x, "+---+");
+				mvprintw(y + 1, x, "| X |");
 				mvprintw(y + 2, x, "+---+");
 			}
         }
@@ -299,7 +298,7 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 	initscr();
     curs_set(1);
     keypad(stdscr, TRUE);
-
+	int count = 0;
 	do {
 		print_board(board);
 
@@ -321,14 +320,16 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 
 		print_board(board);
 		
-	} while (!isGameOver(board)) ;
-
+	//} while (!isGameOver(board)) ;
+		count ++; 
+	} while (count < 4) ;
 	int blackCount = 0;
     int whiteCount = 0;
     
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-            if (board[i][j] == Black) {
+            mvprintw(20+i,35+j,"%d",board[i][j]);
+			if (board[i][j] == Black) {
                 blackCount++;
             } else if (board[i][j] == White) {
                 whiteCount++;
@@ -338,9 +339,12 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 
 	clear_print();
 	if(blackCount > whiteCount) print_lose();
-	else if (blackCount > whiteCount) print_win();
+	else if (blackCount < whiteCount) print_win();
 	else print_dr();
 
+	int check; 
+	while((check= getchar()) != '\n') ;
+	
 	endwin();
 }
 
