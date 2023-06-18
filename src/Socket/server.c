@@ -9,36 +9,96 @@
 #include <netinet/tcp.h>
 #include <linux/socket.h>
 
+#include <ncurses.h>
+
 #define BOARD_SIZE 8
+#define CELL_WIDTH 4
+
 enum Space{
 	Empty,
 	Black,
 	White
 };
 
-void init_board(int board[BOARD_SIZE][BOARD_SIZE]){
-	for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++){
-			if(i == 3){
-				if(j == 3) board[i][j] = White;
-				if(j == 4) board[i][j] = Black;
-			}
-			else if(i == 4){
-				if(j == 3) board[i][j] = Black;
-				if(j == 4) board[i][j] = White;
-			}
-			else board[i][j] = Empty;
-        }
-    }
-}
-
 void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
 	for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++){
-            printf("%d ",board[i][j]);
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            int x = j * CELL_WIDTH;
+            int y = i * 2;
+
+            mvprintw(y, x, "+---+");
+            mvprintw(y + 1, x, "|   |");
+            mvprintw(y + 2, x, "+---+");
+			
+			if(board[i][j] == 1){
+				 int x = j * CELL_WIDTH;
+				int y = i * 2;
+
+				mvprintw(y, x, "+---+");
+				mvprintw(y + 1, x, "| X |");
+				mvprintw(y + 2, x, "+---+");
+			}
+			if(board[i][j] == 2){
+				 int x = j * CELL_WIDTH;
+				int y = i * 2;
+
+				mvprintw(y, x, "+---+");
+				mvprintw(y + 1, x, "| O |");
+				mvprintw(y + 2, x, "+---+");
+			}
         }
-		printf("\n");
-	}	
+    }
+	refresh();
+}
+
+
+void check_board(int board[BOARD_SIZE][BOARD_SIZE]){
+	int row = 0, col = 0, turn = 2;
+	int ch;
+	while ((ch = getch()) != KEY_F(1)) {
+		switch (ch) {
+			case KEY_UP:
+				row--;
+				break;
+			case KEY_DOWN:
+				row++;
+				break;
+			case KEY_LEFT:
+				col--;
+				break;
+			case KEY_RIGHT:
+				col++;
+				break;
+			case '\n':
+				if (board[row][col] == 0) {
+					// 선택한 위치에 동그라미 그리기
+					if (turn == 1) {
+						board[row][col] = 1;  // 흑돌
+						attron(COLOR_PAIR(1));  // 컬러 쌍 1 설정 (흑돌)
+						mvaddch(row * 2 + 1, col * CELL_WIDTH + 2, 'X');
+						attroff(COLOR_PAIR(1));  // 컬러 쌍 1 해제
+					} else if (turn == 2) {
+						board[row][col] = 2;  // 흰돌
+						attron(COLOR_PAIR(2));  // 컬러 쌍 2 설정 (흰돌)
+						mvaddch(row * 2 + 1, col * CELL_WIDTH + 2, 'O');
+						attroff(COLOR_PAIR(2));  // 컬러 쌍 2 해제
+					}
+					// attroff(COLOR_PAIR(1));  // 컬러 쌍 1 해제
+					// attroff(COLOR_PAIR(2));  // 컬러 쌍 2 해제
+				}
+				refresh();
+				return;
+		}
+
+		// 좌표 범위 제한
+		if (row < 0) row = 0;
+		if (row >= BOARD_SIZE) row = BOARD_SIZE - 1;
+		if (col < 0) col = 0;
+		if (col >= BOARD_SIZE) col = BOARD_SIZE - 1;
+
+		move(row * 2 + 1, col * CELL_WIDTH + 2);
+		refresh();
+	}
 }
 
 int listen_at_port (int portnum) 
@@ -81,8 +141,11 @@ int listen_at_port (int portnum)
 
 void chat (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE]) 
 {
-	char buf[256] ;
-
+	//char buf[256] ;
+	initscr();
+    curs_set(1);
+    keypad(stdscr, TRUE);
+	int count = 0;
 	do {
 		int s ;
 		
@@ -95,16 +158,20 @@ void chat (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 		//printf(">%s\n", buf) ;
 		print_board(board);
 		
-		fgets(buf, 256, stdin) ;
-		buf[strlen(buf) - 1] = '\0' ;
-		if (strcmp(buf, "quit()") == 0)
-			break ;
+
+		//fgets(buf, 256, stdin) ;
+		//buf[strlen(buf) - 1] = '\0' ;
+		//if (strcmp(buf, "quit()") == 0)
+		//	break ;
+		check_board(board);
 
 		//send(conn_fd, buf, strlen(buf), 0) ;
 		send(conn_fd, board, sizeof(int)*BOARD_SIZE*BOARD_SIZE, 0);
 
+		print_board(board);
 
-	} while (strcmp(buf, "quit()") != 0) ;
+		count++;
+	} while (count < 6) ;
 }
 
 int main (int argc, char const **argv) 

@@ -23,7 +23,7 @@ int main() {
             mvprintw(y + 2, x, "+---+");
         }
     }
-
+    printf("fff");
     refresh();
     // default -> client, turn == 1 -> client, turn == 2 -> server
     int row = 0, col = 0, turn = 1;
