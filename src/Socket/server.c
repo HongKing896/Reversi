@@ -22,11 +22,11 @@ enum Space{
 	White
 };
 void print_logo() {
-    mvprintw(1 + 0, 35, " ||===   || ||     || ||===  ||===    ====    || ");
-    mvprintw(1 + 1, 35, " ||  ==  || ||     || ||     ||  ==  ==   ==  || ");
-    mvprintw(1 + 2, 35, " ||===   ||  ||   ||  ||===  ||===     ===    || ");
-    mvprintw(1 + 3, 35, " || ||   ||   || ||   ||     || ||   ==   ==  || ");
-	mvprintw(1 + 4, 35, " ||  ||  ||    ||     ||===  ||  ||    ====   || ");
+    mvprintw(1 + 0, 35, " ||===   || ||	    || ||===  ||===    ====	   || ");
+    mvprintw(1 + 1, 35, " ||  ==  || ||     || ||	  ||  ==  ==   ==  || ");
+    mvprintw(1 + 2, 35, " ||===   ||  ||   ||  ||===  ||===	   ===	   || ");
+    mvprintw(1 + 3, 35, " || ||	  ||   || ||   ||	  || ||   ==   ==  || ");
+	mvprintw(1 + 4, 35, " ||  ||  ||	 ||	   ||===  ||  ||    ====   || ");
 }
 
 void print_turn() {
@@ -36,12 +36,11 @@ void print_turn() {
     mvprintw(10 + 3, 35, "**    **     **  **         **     ***   **  ** **     ** ");
 }
 
-
 void clear_print() {
-    mvprintw(10 + 0, 35, "                                                           ");
-    mvprintw(10 + 1, 35, "                                                           ");
-    mvprintw(10 + 2, 35, "                                           	            ");
-    mvprintw(10 + 3, 35, "                                                           ");
+    mvprintw(10 + 0, 35, "                                                            ");
+    mvprintw(10 + 1, 35, "                                                            ");
+    mvprintw(10 + 2, 35, "                                           	              ");
+    mvprintw(10 + 3, 35, "                                                            ");
 }
 
 void print_win() {
@@ -334,13 +333,14 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
     }
 	
 	clear_print();
-	if(blackCount > whiteCount) print_win();
-	else if (blackCount < whiteCount) print_lose();
-	else print_dr();
-	
-	int check; 
-	while((check= getchar()) != '\n') ;
-	
+
+	if(blackCount > whiteCount) 
+		print_lose();
+	else if (blackCount < whiteCount) 
+		print_win();
+	else 
+		print_dr();
+
 	endwin();
 }
 
