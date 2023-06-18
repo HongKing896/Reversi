@@ -1,0 +1,2 @@
+# Reversi
+Oss Final Project
