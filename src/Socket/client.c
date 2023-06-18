@@ -18,8 +18,50 @@ enum Space{
 	Black,
 	White
 };
+void print_logo() {
+    mvprintw(5 + 0, 35, " ||===   ||  ||	|| ||===  ||===    ====	   || ");
+    mvprintw(5 + 1, 35, " ||  ==  ||  ||	|| ||	  ||  ==  ==   ==  || ");
+    mvprintw(5 + 2, 35, " ||===   ||   ||  ||  ||===  ||===	   ===	   || ");
+    mvprintw(5 + 3, 35, " || ||	  ||	||||   ||	  || ||   ==   ==  || ");
+	mvprintw(5 + 3, 35, " ||  ||  ||	 ||	   ||===  ||  ||    ====   || ");
+}
 
-void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
+void print_turn() {
+    mvprintw(5 + 0, 35, "   **     **  ***  ***  ****** **   ** *****  **     ** ");
+    mvprintw(5 + 1, 35, "  ****   ****   ****      **   **   ** **  ** ** **  ** ");
+    mvprintw(5 + 2, 35, " **  ** **  **   **       **   **   ** *****  **  ** ** ");
+    mvprintw(5 + 3, 35, "**    **     **  **       **     ***   **  ** **     ** ");
+}
+
+void clear_print_turn() {
+    mvprintw(5 + 0, 35, "                                                           ");
+    mvprintw(5 + 1, 35, "                                                           ");
+    mvprintw(5 + 2, 35, "                                           	            ");
+    mvprintw(5 + 3, 35, "                                                           ");
+}
+
+void print_win() {
+    mvprintw(5 + 0, 35, "**    **     **  **  ****   **   ");
+    mvprintw(5 + 1, 35, " **  ** **  **   **  ** **  **   ");
+    mvprintw(5 + 2, 35, "  ****   ****    **  **  ** **   ");
+    mvprintw(5 + 3, 35, "   **     **     **  **   ****   ");
+}
+
+void print_lose() {
+    mvprintw(5 + 0, 35, "**      ****      ****    ****   ");
+    mvprintw(5 + 1, 35, "**     **  **    **   **  **     ");
+    mvprintw(5 + 2, 35, "**     **  **  **   **    **     ");
+    mvprintw(5 + 3, 35, "******  ****     ****     ****   ");
+}
+
+void print_dr() {
+    mvprintw(5 + 0, 35, " *****  *****     **   **    **     **  ");
+    mvprintw(5 + 1, 35, " **  ** **  **   ****   **  ** **  **   ");
+    mvprintw(5 + 2, 35, " **  ** *****   **  **   ****   ****    ");
+    mvprintw(5 + 3, 35, " *****  **  ** **    **   **     **     ");
+}
+
+void print_board(int board[BOARD_SIZE][BOARD_SIZE]){	
 	for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
             int x = j * CELL_WIDTH;
@@ -173,10 +215,16 @@ void chat (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 		// 	break ;
 		print_board(board);
 
+		// Notice Order
+		print_turn();
+
 		check_board(board);
 
 		//send(conn_fd, buf, strlen(buf), 0) ;
 		send(conn_fd, board, sizeof(int)*BOARD_SIZE*BOARD_SIZE, 0);
+
+		clear_print_turn();
+
 		print_board(board);
 
 		int s ;

@@ -19,6 +19,48 @@ enum Space{
 	Black,
 	White
 };
+void print_logo() {
+    mvprintw(5 + 0, 35, " ||===   ||  ||	|| ||===  ||===    ====	   || ");
+    mvprintw(5 + 1, 35, " ||  ==  ||  ||	|| ||	  ||  ==  ==   ==  || ");
+    mvprintw(5 + 2, 35, " ||===   ||   ||  ||  ||===  ||===	   ===	   || ");
+    mvprintw(5 + 3, 35, " || ||	  ||	||||   ||	  || ||   ==   ==  || ");
+	mvprintw(5 + 3, 35, " ||  ||  ||	 ||	   ||===  ||  ||    ====   || ");
+}
+
+void print_turn() {
+    mvprintw(5 + 0, 35, "   **     **  ***  ***  ****** **   ** *****  **     ** ");
+    mvprintw(5 + 1, 35, "  ****   ****   ****      **   **   ** **  ** ** **  ** ");
+    mvprintw(5 + 2, 35, " **  ** **  **   **       **   **   ** *****  **  ** ** ");
+    mvprintw(5 + 3, 35, "**    **     **  **       **     ***   **  ** **     ** ");
+}
+
+void clear_print_turn() {
+    mvprintw(5 + 0, 35, "                                                           ");
+    mvprintw(5 + 1, 35, "                                                           ");
+    mvprintw(5 + 2, 35, "                                           	            ");
+    mvprintw(5 + 3, 35, "                                                           ");
+}
+
+void print_win() {
+    mvprintw(5 + 0, 35, "**    **     **  **  ****   **   ");
+    mvprintw(5 + 1, 35, " **  ** **  **   **  ** **  **   ");
+    mvprintw(5 + 2, 35, "  ****   ****    **  **  ** **   ");
+    mvprintw(5 + 3, 35, "   **     **     **  **   ****   ");
+}
+
+void print_lose() {
+    mvprintw(5 + 0, 35, "**      ****      ****    ****   ");
+    mvprintw(5 + 1, 35, "**     **  **    **   **  **     ");
+    mvprintw(5 + 2, 35, "**     **  **  **   **    **     ");
+    mvprintw(5 + 3, 35, "******  ****     ****     ****   ");
+}
+
+void print_dr() {
+    mvprintw(5 + 0, 35, " *****  *****     **   **    **     **  ");
+    mvprintw(5 + 1, 35, " **  ** **  **   ****   **  ** **  **   ");
+    mvprintw(5 + 2, 35, " **  ** *****   **  **   ****   ****    ");
+    mvprintw(5 + 3, 35, " *****  **  ** **    **   **     **     ");
+}
 
 void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
 	for (int i = 0; i < BOARD_SIZE; i++) {
@@ -157,6 +199,9 @@ void chat (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 		//buf[s] = '\0' ;
 		//printf(">%s\n", buf) ;
 		print_board(board);
+
+		// Notice Order
+		print_turn();
 		
 
 		//fgets(buf, 256, stdin) ;
@@ -167,6 +212,8 @@ void chat (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 
 		//send(conn_fd, buf, strlen(buf), 0) ;
 		send(conn_fd, board, sizeof(int)*BOARD_SIZE*BOARD_SIZE, 0);
+
+		clear_print_turn();
 
 		print_board(board);
 
