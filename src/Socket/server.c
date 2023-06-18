@@ -13,6 +13,8 @@
 
 #define BOARD_SIZE 8
 #define CELL_WIDTH 4
+#define SERVER 1
+#define CLIENT 2
 
 enum Space{
 	Empty,
@@ -62,87 +64,6 @@ void print_dr() {
     mvprintw(5 + 3, 35, " *****  **  ** **    **   **     **     ");
 }
 
-void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
-	for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            int x = j * CELL_WIDTH;
-            int y = i * 2;
-
-            mvprintw(y, x, "+---+");
-            mvprintw(y + 1, x, "|   |");
-            mvprintw(y + 2, x, "+---+");
-			
-			if(board[i][j] == 1){
-				 int x = j * CELL_WIDTH;
-				int y = i * 2;
-
-				mvprintw(y, x, "+---+");
-				mvprintw(y + 1, x, "| X |");
-				mvprintw(y + 2, x, "+---+");
-			}
-			if(board[i][j] == 2){
-				 int x = j * CELL_WIDTH;
-				int y = i * 2;
-
-				mvprintw(y, x, "+---+");
-				mvprintw(y + 1, x, "| O |");
-				mvprintw(y + 2, x, "+---+");
-			}
-        }
-    }
-	refresh();
-}
-
-
-void check_board(int board[BOARD_SIZE][BOARD_SIZE]){
-	int row = 0, col = 0, turn = 2;
-	int ch;
-	while ((ch = getch()) != KEY_F(1)) {
-		switch (ch) {
-			case KEY_UP:
-				row--;
-				break;
-			case KEY_DOWN:
-				row++;
-				break;
-			case KEY_LEFT:
-				col--;
-				break;
-			case KEY_RIGHT:
-				col++;
-				break;
-			case '\n':
-				if (board[row][col] == 0) {
-					// 선택한 위치에 동그라미 그리기
-					if (turn == 1) {
-						board[row][col] = 1;  // 흑돌
-						attron(COLOR_PAIR(1));  // 컬러 쌍 1 설정 (흑돌)
-						mvaddch(row * 2 + 1, col * CELL_WIDTH + 2, 'X');
-						attroff(COLOR_PAIR(1));  // 컬러 쌍 1 해제
-					} else if (turn == 2) {
-						board[row][col] = 2;  // 흰돌
-						attron(COLOR_PAIR(2));  // 컬러 쌍 2 설정 (흰돌)
-						mvaddch(row * 2 + 1, col * CELL_WIDTH + 2, 'O');
-						attroff(COLOR_PAIR(2));  // 컬러 쌍 2 해제
-					}
-					// attroff(COLOR_PAIR(1));  // 컬러 쌍 1 해제
-					// attroff(COLOR_PAIR(2));  // 컬러 쌍 2 해제
-				}
-				refresh();
-				return;
-		}
-
-		// 좌표 범위 제한
-		if (row < 0) row = 0;
-		if (row >= BOARD_SIZE) row = BOARD_SIZE - 1;
-		if (col < 0) col = 0;
-		if (col >= BOARD_SIZE) col = BOARD_SIZE - 1;
-
-		move(row * 2 + 1, col * CELL_WIDTH + 2);
-		refresh();
-	}
-}
-
 int listen_at_port (int portnum) 
 {
 	int sock_fd = socket(AF_INET /*IPv4*/, SOCK_STREAM /*TCP*/, 0 /*IP*/) ;
@@ -181,44 +102,221 @@ int listen_at_port (int portnum)
 	return conn_fd ;
 }
 
-void chat (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE]) 
+
+// 주어진 위치에 돌을 놓을 수 있는지 확인
+bool isValidMove(int row, int col, int board[BOARD_SIZE][BOARD_SIZE]) {
+    if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE || board[row][col] != Empty) {
+        return false;
+    }
+    
+    // 주변 8방향을 확인하여 상대방 돌을 찾을 수 있는지 확인
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            if (i == 0 && j == 0) {
+                continue;
+            }
+            
+            int r = row + i;
+            int c = col + j;
+            bool foundOpponent = false;
+            
+            while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE) {
+                if (board[r][c] == SERVER) {
+                    if (foundOpponent) {
+                        return true;
+                    } else {
+                        break;
+                    }
+                } else if (board[r][c] == Empty) {
+                    break;
+                } else {
+                    foundOpponent = true;
+                }
+                
+                r += i;
+                c += j;
+            }
+        }
+    }
+    
+    return false;
+}
+
+// 돌을 놓기
+void makeMove(int row, int col,int board[BOARD_SIZE][BOARD_SIZE]) {
+    board[row][col] = SERVER;
+    
+    // 돌을 뒤집을 수 있는 방향을 확인하여 뒤집기
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            if (i == 0 && j == 0) {
+                continue;
+            }
+            
+            int r = row + i;
+            int c = col + j;
+            bool foundOpponent = false;
+            
+            while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE) {
+                if (board[r][c] == SERVER) {
+                    if (foundOpponent) {
+                        while (r != row || c != col) {
+                            r -= i;
+                            c -= j;
+                            board[r][c] = SERVER;
+                        }
+                    }
+                    
+                    break;
+                } else if (board[r][c] == Empty) {
+                    break;
+                } else {
+                    foundOpponent = true;
+                }
+                
+                r += i;
+                c += j;
+            }
+        }
+    }
+}
+
+void print_move(int board[BOARD_SIZE][BOARD_SIZE]){
+	int row = 0, col = 0, turn = SERVER;
+	int ch;
+	while ((ch = getch()) != KEY_F(1)) {
+		switch (ch) {
+			case KEY_UP:
+				row--;
+				break;
+			case KEY_DOWN:
+				row++;
+				break;
+			case KEY_LEFT:
+				col--;
+				break;
+			case KEY_RIGHT:
+				col++;
+				break;
+			case '\n':
+				if(!isValidMove(row,col,board)) break;
+				if (board[row][col] == 0) {
+					// 선택한 위치에 동그라미 그리기
+					if (turn == SERVER) {
+						board[row][col] = 1;  // 흑돌
+						attron(COLOR_PAIR(1));  // 컬러 쌍 1 설정 (흑돌)
+						mvaddch(row * 2 + 1, col * CELL_WIDTH + 2, 'X');
+						attroff(COLOR_PAIR(1));  // 컬러 쌍 1 해제
+						makeMove(row,col,board);
+					} else if (turn == CLIENT) {
+						board[row][col] = 2;  // 흰돌
+						attron(COLOR_PAIR(2));  // 컬러 쌍 2 설정 (흰돌)
+						mvaddch(row * 2 + 1, col * CELL_WIDTH + 2, 'O');
+						attroff(COLOR_PAIR(2));  // 컬러 쌍 2 해제
+						makeMove(row,col,board);
+					}
+				}
+				refresh();
+				return;
+		}
+
+		// 좌표 범위 제한
+		if (row < 0) row = 0;
+		if (row >= BOARD_SIZE) row = BOARD_SIZE - 1;
+		if (col < 0) col = 0;
+		if (col >= BOARD_SIZE) col = BOARD_SIZE - 1;
+
+		move(row * 2 + 1, col * CELL_WIDTH + 2);
+		refresh();
+	}
+}
+
+// 게임 종료 여부 확인
+bool isGameOver(int board[BOARD_SIZE][BOARD_SIZE]) {
+    int blackCount = 0;
+    int whiteCount = 0;
+    
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            if (board[i][j] == Black) {
+                blackCount++;
+            } else if (board[i][j] == White) {
+                whiteCount++;
+            }
+        }
+    }
+    
+    return (blackCount + whiteCount) == BOARD_SIZE * BOARD_SIZE || blackCount == 0 || whiteCount == 0;
+}
+
+void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
+	for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            int x = j * CELL_WIDTH;
+            int y = i * 2;
+
+            mvprintw(y, x, "+---+");
+            mvprintw(y + 1, x, "|   |");
+            mvprintw(y + 2, x, "+---+");
+			
+			if(board[i][j] == 1){
+				int x = j * CELL_WIDTH;
+				int y = i * 2;
+
+				mvprintw(y, x, "+---+");
+				mvprintw(y + 1, x, "| X |");
+				mvprintw(y + 2, x, "+---+");
+			}
+			if(board[i][j] == 2){
+				int x = j * CELL_WIDTH;
+				int y = i * 2;
+
+				mvprintw(y, x, "+---+");
+				mvprintw(y + 1, x, "| O |");
+				mvprintw(y + 2, x, "+---+");
+			}
+			if(isValidMove(i,j,board)){
+				int x = j * CELL_WIDTH;
+				int y = i * 2;
+
+				mvprintw(y, x, "+---+");
+				mvprintw(y + 1, x, "| + |");
+				mvprintw(y + 2, x, "+---+");
+			}
+        }
+    }
+	refresh();
+}
+void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE]) 
 {
-	//char buf[256] ;
 	initscr();
     curs_set(1);
     keypad(stdscr, TRUE);
-	int count = 0;
+
 	do {
 		int s ;
 		
-		//while ( (s = recv(conn_fd, buf, 255, 0)) == 0 ) ;
 		while ((s = recv(conn_fd, board, sizeof(int)*BOARD_SIZE*BOARD_SIZE, 0)) == 0) ;
 		if (s == -1)
 			break ;
 
-		//buf[s] = '\0' ;
-		//printf(">%s\n", buf) ;
 		print_board(board);
 
 		// Notice Order
 		print_turn();
 		
+	
+		print_move(board);
 
-		//fgets(buf, 256, stdin) ;
-		//buf[strlen(buf) - 1] = '\0' ;
-		//if (strcmp(buf, "quit()") == 0)
-		//	break ;
-		check_board(board);
-
-		//send(conn_fd, buf, strlen(buf), 0) ;
 		send(conn_fd, board, sizeof(int)*BOARD_SIZE*BOARD_SIZE, 0);
 
 		clear_print_turn();
 
 		print_board(board);
 
-		count++;
-	} while (count < 6) ;
+	} while (!isGameOver(board)) ;
+
+	  endwin();
 }
 
 int main (int argc, char const **argv) 
@@ -231,9 +329,8 @@ int main (int argc, char const **argv)
 	int conn_fd = listen_at_port(atoi(argv[1])) ;
 
 	int board[BOARD_SIZE][BOARD_SIZE];
-	//init_board(board);
 
-	chat(conn_fd,board) ;
+	play_game(conn_fd,board) ;
 
 	shutdown(conn_fd, SHUT_RDWR) ;
 } 
