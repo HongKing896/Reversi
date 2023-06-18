@@ -22,82 +22,49 @@ enum Space{
 	White
 };
 void print_logo() {
-    mvprintw(5 + 0, 35, " ||===   ||  ||	|| ||===  ||===    ====	   || ");
-    mvprintw(5 + 1, 35, " ||  ==  ||  ||	|| ||	  ||  ==  ==   ==  || ");
-    mvprintw(5 + 2, 35, " ||===   ||   ||  ||  ||===  ||===	   ===	   || ");
-    mvprintw(5 + 3, 35, " || ||	  ||	||||   ||	  || ||   ==   ==  || ");
-	mvprintw(5 + 3, 35, " ||  ||  ||	 ||	   ||===  ||  ||    ====   || ");
+    mvprintw(1 + 0, 35, " ||===   || ||	    || ||===  ||===    ====	   || ");
+    mvprintw(1 + 1, 35, " ||  ==  || ||     || ||	  ||  ==  ==   ==  || ");
+    mvprintw(1 + 2, 35, " ||===   ||  ||   ||  ||===  ||===	   ===	   || ");
+    mvprintw(1 + 3, 35, " || ||	  ||   || ||   ||	  || ||   ==   ==  || ");
+	mvprintw(1 + 4, 35, " ||  ||  ||	 ||	   ||===  ||  ||    ====   || ");
 }
 
 void print_turn() {
-    mvprintw(5 + 0, 35, "   **     **  ***  ***  ****** **   ** *****  **     ** ");
-    mvprintw(5 + 1, 35, "  ****   ****   ****      **   **   ** **  ** ** **  ** ");
-    mvprintw(5 + 2, 35, " **  ** **  **   **       **   **   ** *****  **  ** ** ");
-    mvprintw(5 + 3, 35, "**    **     **  **       **     ***   **  ** **     ** ");
+    mvprintw(10 + 0, 35, "   **     **  ***  ***    ****** **   ** *****  **     ** ");
+    mvprintw(10 + 1, 35, "  ****   ****   ****        **   **   ** **  ** ** **  ** ");
+    mvprintw(10 + 2, 35, " **  ** **  **   **         **   **   ** *****  **  ** ** ");
+    mvprintw(10 + 3, 35, "**    **     **  **         **     ***   **  ** **     ** ");
 }
 
-void clear_print_turn() {
-    mvprintw(5 + 0, 35, "                                                           ");
-    mvprintw(5 + 1, 35, "                                                           ");
-    mvprintw(5 + 2, 35, "                                           	            ");
-    mvprintw(5 + 3, 35, "                                                           ");
+void clear_print() {
+    mvprintw(10 + 0, 35, "                                                           ");
+    mvprintw(10 + 1, 35, "                                                           ");
+    mvprintw(10 + 2, 35, "                                           	            ");
+    mvprintw(10 + 3, 35, "                                                           ");
 }
 
 void print_win() {
-    mvprintw(5 + 0, 35, "**    **     **  **  ****   **   ");
-    mvprintw(5 + 1, 35, " **  ** **  **   **  ** **  **   ");
-    mvprintw(5 + 2, 35, "  ****   ****    **  **  ** **   ");
-    mvprintw(5 + 3, 35, "   **     **     **  **   ****   ");
+    mvprintw(10 + 0, 35, "**    **     **  **  ****   **   ");
+    mvprintw(10 + 1, 35, " **  ** **  **   **  ** **  **   ");
+    mvprintw(10 + 2, 35, "  ****   ****    **  **  ** **   ");
+    mvprintw(10 + 3, 35, "   **     **     **  **   ****   ");
 }
 
-<<<<<<< HEAD
 void print_lose() {
-    mvprintw(5 + 0, 35, "**      ****      ****    ****   ");
-    mvprintw(5 + 1, 35, "**     **  **    **   **  **     ");
-    mvprintw(5 + 2, 35, "**     **  **  **   **    **     ");
-    mvprintw(5 + 3, 35, "******  ****     ****     ****   ");
+    mvprintw(10 + 0, 35, "**      ****      ****    ****   ");
+    mvprintw(10 + 1, 35, "**     **  **    **   **  **     ");
+    mvprintw(10 + 2, 35, "**     **  **  **   **    **     ");
+    mvprintw(10 + 3, 35, "******  ****     ****     ****   ");
 }
 
 void print_dr() {
-    mvprintw(5 + 0, 35, " *****  *****     **   **    **     **  ");
-    mvprintw(5 + 1, 35, " **  ** **  **   ****   **  ** **  **   ");
-    mvprintw(5 + 2, 35, " **  ** *****   **  **   ****   ****    ");
-    mvprintw(5 + 3, 35, " *****  **  ** **    **   **     **     ");
+    mvprintw(10 + 0, 35, " *****  *****     **   **    **     **  ");
+    mvprintw(10 + 1, 35, " **  ** **  **   ****   **  ** **  **   ");
+    mvprintw(10 + 2, 35, " **  ** *****   **  **   ****   ****    ");
+    mvprintw(10 + 3, 35, " *****  **  ** **    **   **     **     ");
 }
 
-void print_board(int board[BOARD_SIZE][BOARD_SIZE]){	
-	for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            int x = j * CELL_WIDTH;
-            int y = i * 2;
 
-            mvprintw(y, x, "+---+");
-            mvprintw(y + 1, x, "|   |");
-            mvprintw(y + 2, x, "+---+");
-
-			if(board[i][j] == 1){
-				 int x = j * CELL_WIDTH;
-				int y = i * 2;
-
-				mvprintw(y, x, "+---+");
-				mvprintw(y + 1, x, "| X |");
-				mvprintw(y + 2, x, "+---+");
-			}
-			if(board[i][j] == 2){
-				 int x = j * CELL_WIDTH;
-				int y = i * 2;
-
-				mvprintw(y, x, "+---+");
-				mvprintw(y + 1, x, "| O |");
-				mvprintw(y + 2, x, "+---+");
-			}
-        }
-    }
-	refresh();
-}
-
-=======
->>>>>>> d392e0fbf2ef0097d2a7cac4d8f820a2f20b2851
 int connect_ipaddr_port (const char * ip, int port)
 {
 	int sock_fd ;
@@ -288,6 +255,7 @@ bool isGameOver(int board[BOARD_SIZE][BOARD_SIZE]) {
 }
 
 void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
+	print_logo();
 	for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
             int x = j * CELL_WIDTH;
@@ -318,7 +286,7 @@ void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
 				int y = i * 2;
 
 				mvprintw(y, x, "+---+");
-				mvprintw(y + 1, x, "| + |");
+				mvprintw(y + 1, x, "| @ |");
 				mvprintw(y + 2, x, "+---+");
 			}
         }
@@ -338,12 +306,11 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 		// Notice Order
 		print_turn();
 
-		check_board(board);
 		print_move(board);
 
 		send(conn_fd, board, sizeof(int)*BOARD_SIZE*BOARD_SIZE, 0);
 
-		clear_print_turn();
+		clear_print();
 
 		print_board(board);
 
@@ -356,7 +323,25 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 		
 	} while (!isGameOver(board)) ;
 
-	  endwin();
+	int blackCount = 0;
+    int whiteCount = 0;
+    
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            if (board[i][j] == Black) {
+                blackCount++;
+            } else if (board[i][j] == White) {
+                whiteCount++;
+            }
+        }
+    }
+
+	clear_print();
+	if(blackCount > whiteCount) print_lose();
+	else if (blackCount > whiteCount) print_win();
+	else print_dr();
+
+	endwin();
 }
 
 int main (int argc, char const ** argv)
