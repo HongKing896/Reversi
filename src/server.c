@@ -9,6 +9,37 @@
 #include <netinet/tcp.h>
 #include <linux/socket.h>
 
+#define BOARD_SIZE 8
+enum Space{
+	Empty,
+	Black,
+	White
+};
+
+void init_board(int board[BOARD_SIZE][BOARD_SIZE]){
+	for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++){
+			if(i == 3){
+				if(j == 3) board[i][j] = White;
+				if(j == 4) board[i][j] = Black;
+			}
+			else if(i == 4){
+				if(j == 3) board[i][j] = Black;
+				if(j == 4) board[i][j] = White;
+			}
+			else board[i][j] = Empty;
+        }
+    }
+}
+
+void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
+	for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++){
+            printf("%d ",board[i][j]);
+        }
+		printf("\n");
+	}	
+}
 
 int listen_at_port (int portnum) 
 {
@@ -48,27 +79,30 @@ int listen_at_port (int portnum)
 	return conn_fd ;
 }
 
-void chat (int conn_fd) 
+void chat (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE]) 
 {
 	char buf[256] ;
 
 	do {
 		int s ;
 		
-		while ( (s = recv(conn_fd, buf, 255, 0)) == 0 ) ;
+		//while ( (s = recv(conn_fd, buf, 255, 0)) == 0 ) ;
+		while ((s = recv(conn_fd, board, sizeof(int)*BOARD_SIZE*BOARD_SIZE, 0)) == 0) ;
 		if (s == -1)
 			break ;
 
-		buf[s] = '\0' ;
-		printf(">%s\n", buf) ;
-
+		//buf[s] = '\0' ;
+		//printf(">%s\n", buf) ;
+		print_board(board);
 		
 		fgets(buf, 256, stdin) ;
 		buf[strlen(buf) - 1] = '\0' ;
 		if (strcmp(buf, "quit()") == 0)
 			break ;
 
-		send(conn_fd, buf, strlen(buf), 0) ;
+		//send(conn_fd, buf, strlen(buf), 0) ;
+		send(conn_fd, board, sizeof(int)*BOARD_SIZE*BOARD_SIZE, 0);
+
 
 	} while (strcmp(buf, "quit()") != 0) ;
 }
@@ -76,13 +110,16 @@ void chat (int conn_fd)
 int main (int argc, char const **argv) 
 {	
 	if (argc != 2) {
-		fprintf(stderr, "Wrong number of arguments") ;
+		fprintf(stderr, "Wrong number of arguments!\n") ;
 		exit(EXIT_FAILURE) ;
 	}
 
 	int conn_fd = listen_at_port(atoi(argv[1])) ;
 
-	chat(conn_fd) ;
+	int board[BOARD_SIZE][BOARD_SIZE];
+	//init_board(board);
+
+	chat(conn_fd,board) ;
 
 	shutdown(conn_fd, SHUT_RDWR) ;
 } 
