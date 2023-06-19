@@ -319,7 +319,7 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 
 	//} while (!isGameOver(board)) ;
 	count ++; 
-	} while (count < 4) ;
+	} while (count < 3) ;
 	int blackCount = 0;
     int whiteCount = 0;
     
