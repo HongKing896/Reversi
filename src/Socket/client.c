@@ -279,7 +279,7 @@ void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
 				int y = i * 2;
 
 				mvprintw(y, x, "+---+");
-				mvprintw(y + 1, x, "| @ |");
+				mvprintw(y + 1, x, "| X |");
 				mvprintw(y + 2, x, "+---+");
 			}
 			if(isValidMove(i,j,board)){
@@ -287,7 +287,7 @@ void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
 				int y = i * 2;
 
 				mvprintw(y, x, "+---+");
-				mvprintw(y + 1, x, "| X |");
+				mvprintw(y + 1, x, "| . |");
 				mvprintw(y + 2, x, "+---+");
 			}
         }
@@ -330,7 +330,6 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
     
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-            mvprintw(20+i,35+j,"%d",board[i][j]);
 			if (board[i][j] == Black) {
                 blackCount++;
             } else if (board[i][j] == White) {
@@ -348,10 +347,15 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 	else 
 		print_dr();
 
-	int check; 
-	while((check= getchar()) != '\n') ;
-	
-	endwin();
+	int check;
+	while((check= getch()) != KEY_ENTER) {
+		switch (check) {
+			case '\n':
+				endwin();
+				break;
+		}
+	}
+	return;
 }
 
 int main (int argc, char const ** argv)

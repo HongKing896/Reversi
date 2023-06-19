@@ -22,11 +22,13 @@ enum Space{
 	White
 };
 void print_logo() {
-    mvprintw(1 + 0, 35, " ||===   || ||	    || ||===  ||===    ====	   || ");
-    mvprintw(1 + 1, 35, " ||  ==  || ||     || ||	  ||  ==  ==   ==  || ");
-    mvprintw(1 + 2, 35, " ||===   ||  ||   ||  ||===  ||===	   ===	   || ");
-    mvprintw(1 + 3, 35, " || ||	  ||   || ||   ||	  || ||   ==   ==  || ");
-	mvprintw(1 + 4, 35, " ||  ||  ||	 ||	   ||===  ||  ||    ====   || ");
+	mvprintw(1 + 0, 35, "-------------------------------------------------------");
+    mvprintw(1 + 1, 35, "|  ====    ==  ==     ==  =====  ====     ====    ==  |");
+    mvprintw(1 + 2, 35, "|  == ==   ==  ==     ==  ==     == ==   ==   ==  ==  |");
+    mvprintw(1 + 3, 35, "|  ====    ==   ==   ==   =====  ====	    ===    ==  |");
+    mvprintw(1 + 4, 35, "|  == ==   ==    == ==    ==     ==  ==  ==   ==  ==  |");
+	mvprintw(1 + 5, 35, "|  ==  ==  ==      ==     =====  ==   ==   ====   ==  |");
+	mvprintw(1 + 6, 35, "-------------------------------------------------------");
 }
 
 void print_turn() {
@@ -273,7 +275,7 @@ void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
 				int y = i * 2;
 
 				mvprintw(y, x, "+---+");
-				mvprintw(y + 1, x, "| @ |");
+				mvprintw(y + 1, x, "| X |");
 				mvprintw(y + 2, x, "+---+");
 			}
 			if(isValidMove(i,j,board)){
@@ -281,7 +283,7 @@ void print_board(int board[BOARD_SIZE][BOARD_SIZE]){
 				int y = i * 2;
 
 				mvprintw(y, x, "+---+");
-				mvprintw(y + 1, x, "| X |");
+				mvprintw(y + 1, x, "| . |");
 				mvprintw(y + 2, x, "+---+");
 			}
         }
@@ -323,7 +325,6 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
     
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-			mvprintw(20+i,35+j,"%d",board[i][j]);
             if (board[i][j] == Black) {
                 blackCount++;
             } else if (board[i][j] == White) {
@@ -335,13 +336,22 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 	clear_print();
 
 	if(blackCount > whiteCount) 
-		print_lose();
-	else if (blackCount < whiteCount) 
 		print_win();
+	else if (blackCount < whiteCount) 
+		print_lose();
 	else 
 		print_dr();
 
-	endwin();
+	int check;
+	while((check= getch()) != KEY_ENTER) {
+		switch (check) {
+			case '\n':
+				endwin();
+				break;
+		}
+	}
+	return;
+
 }
 
 int main (int argc, char const **argv) 
@@ -358,5 +368,7 @@ int main (int argc, char const **argv)
 	play_game(conn_fd,board) ;
 
 	shutdown(conn_fd, SHUT_RDWR) ;
+
+	return EXIT_SUCCESS ;
 } 
 
