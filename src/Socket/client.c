@@ -24,7 +24,7 @@ void print_logo() {
 	mvprintw(1 + 0, 35, "-------------------------------------------------------");
     mvprintw(1 + 1, 35, "|  ====    ==  ==     ==  =====  ====     ====    ==  |");
     mvprintw(1 + 2, 35, "|  == ==   ==  ==     ==  ==     == ==   ==   ==  ==  |");
-    mvprintw(1 + 3, 35, "|  ====    ==   ==   ==   =====  ====	    ===    ==  |");
+    mvprintw(1 + 3, 35, "|  ====    ==   ==   ==   =====  ====      ===    ==  |");
     mvprintw(1 + 4, 35, "|  == ==   ==    == ==    ==     ==  ==  ==   ==  ==  |");
 	mvprintw(1 + 5, 35, "|  ==  ==  ==      ==     =====  ==   ==   ====   ==  |");
 	mvprintw(1 + 6, 35, "-------------------------------------------------------");
@@ -348,14 +348,13 @@ void play_game (int conn_fd,int board[BOARD_SIZE][BOARD_SIZE])
 		print_dr();
 
 	int check;
-	while((check= getch()) != KEY_ENTER) {
+	while((check= getch()) != KEY_F(1)) {
 		switch (check) {
 			case '\n':
 				endwin();
-				break;
+				return;
 		}
 	}
-	return;
 }
 
 int main (int argc, char const ** argv)
